@@ -1,0 +1,26 @@
+### Set the base image to
+FROM oracle/java7
+
+# install jboss
+ADD installs/jboss-as-dist-7.2.0.Final.tar.gz /opt/jboss
+
+###you can add your drivers/install later as :
+###ADD installs/module.xml /opt/jboss/jboss-as-7.2.0.Final/modules/com/oracle/ojdbc6/main/module.xml
+###ADD installs/ojdbc6.jar /opt/jboss/jboss-as-7.2.0.Final/modules/com/oracle/ojdbc6/main/ojdbc6.jar
+
+### Set Environment
+ENV JBOSS_HOME /opt/jboss/jboss-as-7.2.0.Final
+
+### Create User
+RUN $JBOSS_HOME/bin/add-user.sh admin admin123! --silent
+
+### Configure for easy access
+RUN echo "JAVA_OPTS=\"\$JAVA_OPTS -Djboss.bind.address=0.0.0.0 -Djboss.bind.address.management=0.0.0.0\"" >> $JBOSS_HOME/bin/standalone.conf
+
+### Open Ports
+EXPOSE 8080 9990 9999 8787
+
+WORKDIR /opt/jboss/jboss-as-7.2.0.Final/standalone/log
+
+### Start with standalone.xml - edit to start with different config
+ENTRYPOINT $JBOSS_HOME/bin/standalone.sh  -c standalone.xml
